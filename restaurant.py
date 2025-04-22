@@ -1,9 +1,16 @@
 class Order:
-    def __init__(self, customer_name, order_id):
+    id = 0 
+
+    def __init__(self, customer_name, dishes=None):
         self.customer_name = customer_name
-        self.dishes = []
-        self.order_id = order_id
-        
+        self.dishes = dishes if dishes else []
+        self.order_id = self.set_id()
+        self.status = "новый" 
+
+    @classmethod
+    def set_id(cls):
+        cls.id += 1
+        return cls.id
 class RestaurantQueue:
     def __init__(self, queue):
         self.queue = queue
@@ -13,21 +20,21 @@ class RestaurantQueue:
     
     def add_order(self, order):
         self.queue.append(order)
-        status = "новый"
-        print(f"Заказ клиента {order.customer_name} добавлен в список заказов, имеет статус {status}.")
+        self.status = "новый"
+        print(f"Заказ клиента {order.customer_name} добавлен в список заказов, имеет статус {self.status}.")
 
     def take_order(self):
         if not self.is_empty():
             order = self.queue.pop(0)
-            status = "в процессе"
-            print(f"Заказ клиента {order.customer_name} начал готовиться, имеет статус {status}.")
+            self.status = "в процессе"
+            print(f"Заказ клиента {order.customer_name} начал готовиться, имеет статус {self.status}.")
             return order
         else:
             print("Очередь заказов пуста.")
 
     def complete_order(self, order):
-        status = "готов"
-        print(f"Заказ клиента {order.customer_name}{status}.")
+        self.status = "готов"
+        print(f"Заказ клиента {order.customer_name}{self.status}.")
 
     def print_queue(self):
         if self.is_empty():
@@ -54,13 +61,14 @@ class RestaurantQueue:
                 return order
         print(f"Заказ с ID {order_id} не найден.")
 
-            
-                
     def set_priority(self, order_id, priority):
         for order in self.queue:
             if order.order_id == order_id:
-                order.priority = priority
-                print(f"Приоритет заказа с ID {order_id} клиента {order.customer_name} установлен на {priority}.")
-                return order.priority
-        print(f"Заказ с ID {order_id} не найден.")
+                self.queue.remove(order)
+                self.queue.insert(max(0, priority), order)
+                print(f"Заказ с ID {order_id} клиента {order.customer_name} перемещен на позицию {priority}.")
+                return order
+        print(f"Заказ c ID {order_id} не найден.")
+
+
 
